@@ -24,9 +24,11 @@ usage: es-csv-exporter
     --sourceIndex <sourceIndex>     Source Index
     --sourcePort <sourcePort>       Source Elasticsearch Port
 
-Example usage:
+```
+
+# Example usage:
+
 
 ```
 >./es-csv-exporter --columns request,verb --sourceHost localhost --sourcePort 9200 --sourceIndex logstash-* --outputFile report.csv --query '{"query":{ "match": {"verb": "POST"}}}'
-
 ```
