@@ -1,11 +1,7 @@
 package com.sarwarbhuiyan.tools.elasticsearch;
 
-import java.util.EventObject;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.main.Main;
-import org.apache.camel.management.event.CamelContextStoppedEvent;
-import org.apache.camel.support.EventNotifierSupport;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -14,30 +10,9 @@ import org.apache.commons.cli.Options;
 
 public class CSVExporterMain extends Main {
 	
-	class ShutdownEventNotifier extends EventNotifierSupport {
-		private Main main;
-		
-		public ShutdownEventNotifier(Main main) {
-			this.main = main;
-		}
-		
-		public void notify(EventObject event) throws Exception {
-			if(event instanceof CamelContextStoppedEvent) {
-				Thread.sleep(5000);
-				main.completed();
-			}
-
-		}
-		
-		public boolean isEnabled(EventObject event) {
-			return true;
-		}
-	}
-	
 	@Override
 	protected CamelContext createContext() {
 		CamelContext camelContext = super.createContext();
-		camelContext.getManagementStrategy().addEventNotifier(new ShutdownEventNotifier(this));
 		return camelContext;
 	}
 
@@ -78,6 +53,7 @@ public class CSVExporterMain extends Main {
 				routeBuilder.setOutputFilePath(line.getOptionValue("outputFile"));
 			
 			final CSVExporterMain main = new CSVExporterMain();
+			routeBuilder.setMain(main);
 			main.addRouteBuilder(routeBuilder);
 			main.setDuration(-1);
 			main.run();

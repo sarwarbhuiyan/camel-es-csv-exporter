@@ -130,8 +130,17 @@ public class CSVExporterRouteBuilder extends RouteBuilder {
 
 		from(sourceRouteOptionsBuilder.toString())
 		.startupOrder(2)
-		.shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)		
-		.to("seda:bulkRequests");
+		.shutdownRunningTask(ShutdownRunningTask.CompleteAllTasks)
+		.choice()
+			.when(body().isEqualTo("DONE"))
+			    .process(new Processor() {
+					public void process(Exchange exchange) throws Exception {
+						main.completed();
+					}
+				})
+			    .to("log:reindexer?level=INFO")
+			.otherwise()	
+			.to("seda:bulkRequests");
 		
 		from("seda:bulkRequests?concurrentConsumers="+this.outputWorkers)
 				.startupOrder(1)
